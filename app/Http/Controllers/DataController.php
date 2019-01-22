@@ -9,7 +9,6 @@
 namespace App\Http\Controllers;
 
 
-use App\Source;
 use App\User;
 
 class DataController extends Controller
@@ -85,6 +84,13 @@ class DataController extends Controller
     public function destroyItem($source, $id)
     {
         $this->model($source, $id)->delete();
+
+        return response()->json(['msg' => '删除成功']);
+    }
+
+    public function destroyItems($source)
+    {
+        $this->model($source)->whereIn('id', explode(',', request('ids')))->delete();
 
         return response()->json(['msg' => '删除成功']);
     }

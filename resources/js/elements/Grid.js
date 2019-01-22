@@ -1,7 +1,7 @@
 import Base from "./Base";
 import Data from "./Data";
 
-export default class Grid extends Base{
+export default class Grid extends Base {
     constructor(params) {
         super();
         this.source = params.source;
@@ -20,7 +20,8 @@ export default class Grid extends Base{
 
                 this.fetchData();
             })
-            .catch(() => {});
+            .catch(() => {
+            });
     }
 
     fetchOption(data) {
@@ -78,7 +79,7 @@ export default class Grid extends Base{
     }
 
     valueEcho(key, value) {
-        for(let i in this.fields) {
+        for (let i in this.fields) {
             if (key === this.fields[i].key) {
                 if (this.fields[i].filter) {
                     return this.fields[i].filter.replace(/{\?}/i, value);
@@ -96,14 +97,25 @@ export default class Grid extends Base{
 
     destroy(id) {
         return new Promise((resolve, reject) => {
-            http.delete('/item/' + this.source + '/' + id)
-                .then(() => {
-                    this.data.get();
-                    resolve();
-                })
-                .catch(() => {
-                    reject();
-                });
+            if (typeof id === 'object') {
+                http.delete('/item/' + this.source, {ids: id.join(',')})
+                    .then(() => {
+                        this.data.get();
+                        resolve();
+                    })
+                    .catch(() => {
+                        reject();
+                    });
+            } else {
+                http.delete('/item/' + this.source + '/' + id)
+                    .then(() => {
+                        this.data.get();
+                        resolve();
+                    })
+                    .catch(() => {
+                        reject();
+                    });
+            }
         });
     }
 }

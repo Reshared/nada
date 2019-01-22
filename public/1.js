@@ -66,6 +66,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 
@@ -83,6 +85,20 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
+    handleBatchDestroy: function handleBatchDestroy() {
+      var ids = [];
+      document.querySelectorAll('tbody tr').forEach(function (item) {
+        if (item.firstChild.firstChild.checked) {
+          ids.push(item.childNodes[2].innerText);
+        }
+      });
+
+      if (ids.length === 0) {
+        alert('没有选中的条目');
+      } else if (confirm('确认删除选中的' + ids.length + '个条目么?')) {
+        this.grid.destroy(ids).then(function () {}).catch(function () {});
+      }
+    },
     handleEdit: function handleEdit(id) {
       this.$router.push('/' + this.grid.source + '/' + id + '/edit');
     },
@@ -581,7 +597,21 @@ var render = function() {
           )
         : _vm._e(),
       _vm._v(" "),
+      _vm.grid.edit
+        ? _c(
+            "router-link",
+            { attrs: { to: "/" + _vm.grid.source + "/create" } },
+            [_vm._v("创建")]
+          )
+        : _vm._e(),
+      _vm._v(" "),
       _vm.grid.export_able ? _c("button", [_vm._v("导出")]) : _vm._e(),
+      _vm._v(" "),
+      _vm.grid.delete
+        ? _c("button", { on: { click: _vm.handleBatchDestroy } }, [
+            _vm._v("批量删除")
+          ])
+        : _vm._e(),
       _vm._v(" "),
       _c(
         "button",
@@ -704,31 +734,35 @@ var render = function() {
                 _vm._v(" "),
                 _vm.grid.anyActions()
                   ? _c("td", [
-                      _c("button", [_vm._v("查看")]),
+                      _vm.grid.view ? _c("button", [_vm._v("查看")]) : _vm._e(),
                       _vm._v(" "),
-                      _c(
-                        "button",
-                        {
-                          on: {
-                            click: function($event) {
-                              _vm.handleEdit(cols.id)
-                            }
-                          }
-                        },
-                        [_vm._v("编辑")]
-                      ),
+                      _vm.grid.edit
+                        ? _c(
+                            "button",
+                            {
+                              on: {
+                                click: function($event) {
+                                  _vm.handleEdit(cols.id)
+                                }
+                              }
+                            },
+                            [_vm._v("编辑")]
+                          )
+                        : _vm._e(),
                       _vm._v(" "),
-                      _c(
-                        "button",
-                        {
-                          on: {
-                            click: function($event) {
-                              _vm.handleDestroy(index)
-                            }
-                          }
-                        },
-                        [_vm._v("删除")]
-                      )
+                      _vm.grid.delete
+                        ? _c(
+                            "button",
+                            {
+                              on: {
+                                click: function($event) {
+                                  _vm.handleDestroy(index)
+                                }
+                              }
+                            },
+                            [_vm._v("删除")]
+                          )
+                        : _vm._e()
                     ])
                   : _vm._e()
               ],
@@ -2048,13 +2082,25 @@ function (_Base) {
       var _this3 = this;
 
       return new Promise(function (resolve, reject) {
-        http.delete('/item/' + _this3.source + '/' + id).then(function () {
-          _this3.data.get();
+        if (_typeof(id) === 'object') {
+          http.delete('/item/' + _this3.source, {
+            ids: id.join(',')
+          }).then(function () {
+            _this3.data.get();
 
-          resolve();
-        }).catch(function () {
-          reject();
-        });
+            resolve();
+          }).catch(function () {
+            reject();
+          });
+        } else {
+          http.delete('/item/' + _this3.source + '/' + id).then(function () {
+            _this3.data.get();
+
+            resolve();
+          }).catch(function () {
+            reject();
+          });
+        }
       });
     }
   }]);

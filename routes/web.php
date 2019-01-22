@@ -23,6 +23,7 @@ Route::group(['prefix' => 'nada'], function () {
                 Route::get('users/{id}', 'DataController@item');
                 Route::post('/{source}', 'DataController@saveItem');
                 Route::delete('/{source}/{id}', 'DataController@destroyItem');
+                Route::delete('/{source}', 'DataController@destroyItems');
             });
 
             Route::group(['prefix' => 'structures'], function() {

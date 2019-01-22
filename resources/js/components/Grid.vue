@@ -5,7 +5,9 @@
         <Search :keys="grid.searches" v-on:search="handleSearch"></Search>
         <Only v-on:only="handleOnly" v-if="grid.soft_delete"></Only>
         <router-link v-if="grid.edit" :to="'/'+grid.source+'/create'">创建</router-link>
+        <router-link v-if="grid.edit" :to="'/'+grid.source+'/create'">创建</router-link>
         <button v-if="grid.export_able">导出</button>
+        <button v-if="grid.delete" @click="handleBatchDestroy">批量删除</button>
         <button @click="grid.data.get()">刷新</button>
         <table border="1">
             <thead>
@@ -39,9 +41,9 @@
                 <td v-for="(rows, index) in grid.fields" :key="index"
                     v-html="grid.valueEcho(rows.key, cols[rows.key])"></td>
                 <td v-if="grid.anyActions()">
-                    <button>查看</button>
-                    <button @click="handleEdit(cols.id)">编辑</button>
-                    <button @click="handleDestroy(index)">删除</button>
+                    <button v-if="grid.view">查看</button>
+                    <button v-if="grid.edit" @click="handleEdit(cols.id)">编辑</button>
+                    <button v-if="grid.delete" @click="handleDestroy(index)">删除</button>
                 </td>
             </tr>
             </tbody>
@@ -68,6 +70,23 @@
             }
         },
         methods: {
+            handleBatchDestroy() {
+                let ids = [];
+                document.querySelectorAll('tbody tr').forEach((item) => {
+                    if (item.firstChild.firstChild.checked) {
+                        ids.push(item.childNodes[2].innerText);
+                    }
+                });
+                if (ids.length === 0) {
+                    alert('没有选中的条目');
+                } else if (confirm('确认删除选中的' + ids.length + '个条目么?')) {
+                    this.grid.destroy(ids)
+                        .then(() => {
+
+                        })
+                        .catch(() => {});
+                }
+            },
             handleEdit(id) {
                 this.$router.push('/' + this.grid.source + '/' + id + '/edit');
             },

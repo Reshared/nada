@@ -17494,6 +17494,10 @@ function () {
         data = {
           params: data
         };
+      } else if (method === 'delete') {
+        data = {
+          data: data
+        };
       }
 
       return new Promise(function (resolve, reject) {
